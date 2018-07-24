@@ -16,6 +16,11 @@ myenv-help() {
   exit 0
 }
 
+create_vim() {
+  mkdir "${MYENV}/.vim"
+  cp -rf "${MYENV_TEMPLATES}"/vim_rc "${MYENV}/.vim/rc"
+  cp "${MYENV_TEMPLATES}"/vimrc "${MYENV}/.vimrc"
+}
 
 create_python() {
   # todo pyenv
@@ -60,6 +65,7 @@ myenv-create() {
     export MYENV_PYDIR="${MYENV}/venv_py"
   fi
 
+  create_vim
   create_python
   create_zsh
   create_tmux
