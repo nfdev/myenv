@@ -1,0 +1,27 @@
+# SETUP ENV
+if [ -z "${MYENV}" ]; then
+  if [ "${SHELL##*/}" == "zsh"]; then
+    export MYENV="${0%/*}"
+  elif [ "${SHELL##*/}" == "bash"]; then
+    export MYENV="${BASH_SOURCE%/*}"
+  else
+    echo "Unknown Shell. Error Exit."
+    exit 1
+  fi
+fi
+
+if [ -z "${MYENV_PYDIR}" ]; then
+  export MYENV_PYDIR="${MYENV}/myenv-py"
+fi
+
+
+# SETUP Python
+#export PYENV_ROOT="$HOME/.pyenv"
+#export PATH="$PYENV_ROOT/bin:$PATH"
+source "${MYENV_PYDIR}/bin/activate"
+
+# SETUP JavaScript
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+export PATH="${MYENV}/node_modules/.bin/:$PATH"

@@ -1,0 +1,29 @@
+_myenv()
+{
+  local cur prev cword envs
+
+  if [ -z "${MYENVS}" ]; then
+    MYENVS="/home/hogemin/myenvs"
+  fi
+
+  if [ ! -d "${MYENVS}" ]; then
+    envs=""
+  else
+    envs=$(ls "${MYENVS}")
+  fi
+  opts="-c -r"
+
+  _get_comp_words_by_ref -n : cur prev cword
+
+  if [ "${cword}" -eq 1 ]; then
+    COMPREPLY=($(compgen -W "${opts} ${envs}" -- "${cur}"))
+  elif [ "${cword}" -eq 2 ]; then
+    if [ "${prev}" == "-r" ]; then
+      COMPREPLY=($(compgen -W "${envs}" -- "${cur}"))
+    else
+      COMPREPLY=""
+    fi
+  fi
+}
+
+complete -F _myenv myenv

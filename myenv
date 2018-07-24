@@ -1,0 +1,142 @@
+#!/usr/bin/env bash
+set -e
+
+
+abort() {
+  { if [ "$#" -eq 0 ]; then cat -
+    else echo "myenv: $*"
+    fi
+  } >&2
+  exit 1
+}
+
+myenv-help() {
+  echo "myenv-help"
+
+  exit 0
+}
+
+
+create_python() {
+  # todo pyenv
+  python3 -m venv ${MYENV_PYDIR}
+}
+
+create_js() {
+  # do nothing 
+  echo "TODO create js"
+}
+
+create_rb() {
+  # do nothing
+  echo "TODO create rb"
+}
+
+create_zsh() {
+  cp "${MYENV_TEMPLATES}"/zshrc "${MYENV}/.zshrc"
+}
+
+create_tmux() {
+  cp "${MYENV_TEMPLATES}"/tmux.conf "${MYENV}/.tmux.conf"
+}
+
+create_activate() {
+  cp "${MYENV_TEMPLATES}"/activate "${MYENV}/activate"
+}
+
+init_python() {
+	(source $MYENV_PYDIR/bin/activate && pip install jedi && deactivate)
+}
+
+myenv-create() {
+  echo "myenv-create"
+
+  if [ -d  $MYENV ]; then 
+    abort "Environment already exists \`$MYENV'" 
+  fi
+
+  mkdir "${MYENV}"
+  if [ -z "${MYENV_PYDIR}" ]; then
+    export MYENV_PYDIR="${MYENV}/venv_py"
+  fi
+
+  create_python
+  create_zsh
+  create_tmux
+  create_activate
+
+  init_python
+  exit 0
+}
+
+myenv-workon() {
+  echo "myenv-workon"  
+  if [ ! -d  $MYENV ]; then 
+    abort "No such directory \`$MYENV'" 
+  fi
+
+  export MYENV_ORGDIR=$(pwd)
+
+  cd "${MYENV}"
+  tmux -f ./.tmux.conf
+
+  cd "${MYENV_ORGDIR}"
+
+  exit 0
+}
+
+myenv-remove() {
+  echo "myenv-remove"
+  if [ ! -d  $MYENV ]; then 
+    abort "No such directory \`$MYENV'" 
+  fi
+
+  rm -rf "${MYENV}"
+}
+
+
+check_env() {
+  if [ -z "$envname" ]; then
+    myenv-help
+  fi 
+
+  if [ -z "$MYENVS" ]; then
+    export MYENVS="$HOME/myenvs"
+  fi
+
+  if [ ! -d $MYENVS ]; then
+    mkdir $MYENVS
+  fi
+
+  export MYENV_TEMPLATES="${BASH_SOURCE%/*}/templates"
+
+  export MYENV="${MYENVS}/${envname}"
+  export MYENV_PYDIR="${MYENV}/myenv-py"
+}
+
+
+command="$1"
+envname="$2" 
+case "$command" in
+"" )
+  { 
+    myenv-help 
+  } | abort
+  ;;
+-h | --help )
+  myenv-help
+  ;;
+-c | --create )
+  check_env
+  myenv-create
+  ;;
+-r | --remove )
+  check_env
+  myenv-remove
+  ;;
+* )
+  envname="${command}" 
+  check_env
+  myenv-workon
+  ;;
+esac
