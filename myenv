@@ -50,7 +50,7 @@ create_activate() {
 }
 
 init_python() {
-	(source $MYENV_PYDIR/bin/activate && pip install jedi && deactivate)
+  (source $MYENV_PYDIR/bin/activate && pip install jedi && deactivate)
 }
 
 myenv-create() {
